@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>UPI QR Code Generator</title>
+<style>
+  :root {
+    --bg-light: #f4f4f4;
+    --bg-dark: #0f172a;
+    --text-light: #000;
+    --text-dark: #fff;
+    --accent: #ffb703;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: "Poppins", sans-serif;
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
+    color: var(--text-dark);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    transition: background 0.5s, color 0.5s;
+    overflow-x: hidden;
+  }
+
+  body.light {
+    background: var(--bg-light);
+    color: var(--text-light);
+  }
+
+  .container {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    text-align: center;
+    width: 100%;
+    max-width: 420px;
+    transition: background 0.5s, transform 0.3s;
+  }
+
+  body.light .container {
+    background: rgba(0,0,0,0.05);
+  }
+
+  h1 {
+    margin-bottom: 18px;
+    font-weight: 600;
+    font-size: 1.5em;
+  }
+
+  input {
+    width: 100%;
+    padding: 14px;
+    margin: 8px 0;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    font-size: 1em;
+    background: rgba(255,255,255,0.9);
+    transition: box-shadow 0.3s ease;
+  }
+
+  input:focus {
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  button {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    color: #000;
+    font-weight: 600;
+    font-size: 1em;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+  }
+
+  button:hover {
+    background: #ffd166;
+    transform: scale(1.03);
+  }
+
+  #qrcode {
+    margin-top: 25px;
+    background: #fff;
+    padding: 15px;
+    border-radius: 12px;
+    display: inline-block;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.5s ease;
+  }
+
+  #qrcode.show {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .preview-card {
+    background: rgba(255,255,255,0.15);
+    border-radius: 15px;
+    margin-top: 20px;
+    padding: 10px 15px;
+    text-align: center;
+    line-height: 1.4;
+    display: none;
+  }
+
+  .preview-card.show {
+    display: block;
+    animation: fadeIn 0.5s ease;
+  }
+
+  .pay-now {
+    display: inline-block;
+    margin-top: 10px;
+    background: var(--accent);
+    padding: 10px 20px;
+    border-radius: 10px;
+    color: #000;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.3s;
+  }
+
+  .pay-now:hover {
+    background: #ffd166;
+  }
+
+  .btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+  }
+
+  .btn-group button {
+    flex: 1 1 calc(50% - 10px);
+  }
+
+  .toggle-btn {
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    background: none;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    cursor: pointer;
+    font-size: 1.2em;
+    transition: all 0.3s;
+    z-index: 10;
+  }
+
+  body.light .toggle-btn {
+    border-color: #000;
+    color: #000;
+  }
+
+  .toggle-btn:hover {
+    transform: rotate(20deg);
+  }
+
+  footer {
+    margin-top: 25px;
+    font-size: 0.9em;
+    color: #fff;
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  body.light footer {
+    color: #000;
+  }
+
+  /* Toast Message */
+  .toast {
+    position: fixed;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.8);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    opacity: 0;
+    transition: opacity 0.5s, bottom 0.5s;
+    z-index: 999;
+  }
+
+  .toast.show {
+    opacity: 1;
+    bottom: 40px;
+  }
+
+  @keyframes fadeIn {
+    from {opacity: 0; transform: translateY(10px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
+
+  @media (max-width: 480px) {
+    .container { padding: 20px; max-width: 92%; }
+    input, button { font-size: 0.95em; padding: 12px; }
+    h1 { font-size: 1.3em; }
+    .toggle-btn { width: 40px; height: 40px; font-size: 1em; }
+  }
+</style>
+</head>
+<body>
+  <button class="toggle-btn" onclick="toggleMode()">🌙</button>
+
+  <div class="container">
+    <h1>UPI QR Code Generator</h1>
+    <input type="text" id="upiId" placeholder="Enter UPI ID (e.g. ankit@upi)" />
+    <input type="number" id="amount" placeholder="Enter Amount (optional)" />
+    <input type="text" id="name" placeholder="Enter Name (optional)" />
+    <button onclick="generateQR()">Generate QR Code</button>
+
+    <div id="qrcode"></div>
+
+    <div class="preview-card" id="previewCard">
+      <p><b>Name:</b> <span id="previewName">-</span></p>
+      <p><b>UPI ID:</b> <span id="previewUpi">-</span></p>
+      <p><b>Amount:</b> ₹<span id="previewAmount">0</span></p>
+      <a id="payNowBtn" href="#" class="pay-now" target="_blank">Pay Now</a>
+    </div>
+
+    <div class="btn-group">
+      <button onclick="copyUPILink()">Copy Link</button>
+      <button onclick="downloadQR()">Download QR</button>
+      <button onclick="shareQR()">Share QR</button>
+      <button onclick="resetForm()">Reset</button>
+    </div>
+  </div>
+
+  <footer>
+    🛡️ CREATED BY <b>ANKIT DUBEY</b><br>
+    ✅ 100% SAFE AND SECURE
+  </footer>
+
+  <div id="toast" class="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+
+<script>
+  let upiLink = "";
+
+  function showToast(msg) {
+    const toast = document.getElementById("toast");
+    toast.textContent = msg;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 2500);
+  }
+
+  function generateQR() {
+    const upiId = document.getElementById("upiId").value.trim();
+    const amount = document.getElementById("amount").value.trim();
+    const name = document.getElementById("name").value.trim();
+
+    if (!upiId) {
+      showToast("⚠️ Enter a valid UPI ID!");
+      return;
+    }
+
+    upiLink = `upi://pay?pa=${upiId}`;
+    if (name) upiLink += `&pn=${encodeURIComponent(name)}`;
+    if (amount) upiLink += `&am=${amount}`;
+    upiLink += "&cu=INR";
+
+    const qrDiv = document.getElementById("qrcode");
+    qrDiv.innerHTML = "";
+    new QRCode(qrDiv, { text: upiLink, width: 200, height: 200 });
+    setTimeout(() => qrDiv.classList.add("show"), 100);
+
+    // Update live preview
+    document.getElementById("previewName").textContent = name || "Not specified";
+    document.getElementById("previewUpi").textContent = upiId;
+    document.getElementById("previewAmount").textContent = amount || "0";
+    document.getElementById("previewCard").classList.add("show");
+
+    const payBtn = document.getElementById("payNowBtn");
+    payBtn.href = upiLink;
+
+    // Confetti animation
+    for (let i = 0; i < 30; i++) {
+      const confetti = document.createElement("div");
+      confetti.style.position = "fixed";
+      confetti.style.left = Math.random() * 100 + "vw";
+      confetti.style.top = "-10px";
+      confetti.style.width = "8px";
+      confetti.style.height = "8px";
+      confetti.style.background = `hsl(${Math.random() * 360}, 70%, 60%)`;
+      confetti.style.borderRadius = "50%";
+      confetti.style.opacity = "0.8";
+      confetti.style.zIndex = "999";
+      document.body.appendChild(confetti);
+      const fall = confetti.animate([
+        { transform: "translateY(0)" },
+        { transform: `translateY(${window.innerHeight}px) rotate(720deg)` }
+      ], { duration: Math.random() * 2000 + 2000, easing: "ease-out" });
+      fall.onfinish = () => confetti.remove();
+    }
+
+    showToast("🎉 QR Generated Successfully!");
+  }
+
+  function copyUPILink() {
+    if (!upiLink) return showToast("⚠️ Generate QR first!");
+    navigator.clipboard.writeText(upiLink);
+    showToast("✅ UPI Link Copied!");
+  }
+
+  function downloadQR() {
+    const qrCanvas = document.querySelector("#qrcode canvas");
+    if (!qrCanvas) return showToast("⚠️ Generate QR first!");
+    const link = document.createElement("a");
+    link.download = "upi_qr.png";
+    link.href = qrCanvas.toDataURL("image/png");
+    link.click();
+    showToast("📁 QR Downloaded!");
+  }
+
+  async function shareQR() {
+    const qrCanvas = document.querySelector("#qrcode canvas");
+    if (!qrCanvas) return showToast("⚠️ Generate QR first!");
+    const blob = await new Promise(resolve => qrCanvas.toBlob(resolve));
+    const file = new File([blob], "upi_qr.png", { type: "image/png" });
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "My UPI QR Code",
+          text: "Scan this UPI QR to pay me securely 💸",
+          files: [file],
+        });
+      } catch (err) {}
+    } else {
+      showToast("⚠️ Share not supported on this device!");
+    }
+  }
+
+  function resetForm() {
+    document.getElementById("upiId").value = "";
+    document.getElementById("amount").value = "";
+    document.getElementById("name").value = "";
+    document.getElementById("qrcode").innerHTML = "";
+    document.getElementById("previewCard").classList.remove("show");
+    upiLink = "";
+    showToast("🔄 Reset complete!");
+  }
+
+  function toggleMode() {
+    document.body.classList.toggle("light");
+    const btn = document.querySelector(".toggle-btn");
+    const isLight = document.body.classList.contains("light");
+    btn.textContent = isLight ? "☀️" : "🌙";
+    localStorage.setItem("theme", isLight ? "light" : "dark");
+  }
+
+  // Load saved mode
+  window.onload = () => {
+    if (localStorage.getItem("theme") === "light") {
+      document.body.classList.add("light");
+      document.querySelector(".toggle-btn").textContent = "☀️";
+    }
+  };
+</script>
+</body>
+</html>
