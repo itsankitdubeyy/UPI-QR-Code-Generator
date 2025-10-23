@@ -1,11 +1,39 @@
-# UPI-QR-Code-Generator
-The UPI QR Code Generator is a powerful, smart, and secure tool that lets you create instant UPI payment QR codes for any merchant, business, or personal use. Whether you’re a freelancer, or digital seller — you can generate a scannable UPI QR code in seconds and receive payments instantly using Google Pay, PhonePe, or any UPI-enabled app.
+# 💸 UPI QR Code Generator
 
-🚀 Features
+A **modern, responsive, and secure UPI QR Code Generator** built using **HTML, CSS, and JavaScript**.  
+Generate, download, and share **UPI payment QR codes** that work across all major UPI apps like **Google Pay, PhonePe, Paytm, BHIM**, and more.
 
-✅ Instant UPI QR Generation – Enter your UPI ID, name, and optional amount to generate a scannable payment QR code instantly.
-✅ Download & Share – Download or share your generated QR in one tap.
-✅ Copy UPI Link – Copy the secure UPI payment link directly.
-✅ Light / Dark Mode – Switch themes seamlessly for better viewing.
-✅ 100% Responsive Design – Works beautifully on mobile, tablet, and desktop.
-✅ Offline & Secure – Runs entirely in the browser with no backend — your data never leaves your device.
+---
+
+## 🚀 Features
+
+- ✅ **Instant UPI QR Generation** – Enter your UPI ID, name, and optional amount to generate a scannable QR code instantly.  
+- ✅ **Download & Share** – Easily download or share your generated QR code.  
+- ✅ **Copy UPI Link** – Copy the secure UPI payment link directly.  
+- ✅ **Light / Dark Mode** – Seamlessly toggle themes.  
+- ✅ **Fully Responsive Design** – Works beautifully on mobile, tablet, and desktop.  
+- ✅ **Offline & Secure** – Runs entirely in the browser with no backend.  
+
+
+---
+
+## 🧩 Tech Stack
+
+- **HTML5** – Structure and layout  
+- **CSS3** – Modern, responsive design with gradients and blur effects  
+- **JavaScript (Vanilla)** – Core functionality, QR generation, sharing, and history  
+- **QRCode.js** – Library for generating QR codes  
+
+---
+
+## 🖼️ Preview
+
+![UPI QR Generator Screenshot]  
+
+---
+
+## 🛠️ How to Use
+
+1. Clone this repository:
+   ```bash
+   git clone https://itsankitdubeyy.github.io/UPI-QR-Code-Generator/
